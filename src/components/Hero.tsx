@@ -1,3 +1,5 @@
+import { UserButton } from '@clerk/nextjs'
+
 export default function () {
     return (
         <section className="flex h-[calc(100vh-74px)] flex-col overflow-auto bg-gradient-to-t from-slate-950 to-slate-900">
