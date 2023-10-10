@@ -1,0 +1,81 @@
+{
+    "data": {
+        "backup_code_enabled": false,
+        "banned": false,
+        "birthday": "",
+        "create_organization_enabled": true,
+        "created_at": 1696916718760,
+        "delete_self_enabled": true,
+        "email_addresses": [
+            {
+                "email_address": "z.nickolas523@gmail.com",
+                "id": "idn_2WYk5fXyeQqDiei8bt1ltx84VIy",
+                "linked_to": [
+                    {
+                        "id": "idn_2WYk5bxdyb0yytPTeqwxuVYODG8",
+                        "type": "oauth_discord"
+                    }
+                ],
+                "object": "email_address",
+                "reserved": false,
+                "verification": {
+                    "attempts": null,
+                    "expire_at": null,
+                    "status": "verified",
+                    "strategy": "from_oauth_discord"
+                }
+            }
+        ],
+        "external_accounts": [
+            {
+                "approved_scopes": "email identify",
+                "avatar_url": "https://cdn.discordapp.com/avatars/168830281808084992/b9509985a14eb7d9ff23370622a406af",
+                "email_address": "z.nickolas523@gmail.com",
+                "first_name": "liteyear.",
+                "id": "eac_2WYk5bq60EtJWmHUBZhNgObu8x1",
+                "identification_id": "idn_2WYk5bxdyb0yytPTeqwxuVYODG8",
+                "image_url": "https://img.clerk.com/eyJ0eXBlIjoicHJveHkiLCJzcmMiOiJodHRwczovL2Nkbi5kaXNjb3JkYXBwLmNvbS9hdmF0YXJzLzE2ODgzMDI4MTgwODA4NDk5Mi9iOTUwOTk4NWExNGViN2Q5ZmYyMzM3MDYyMmE0MDZhZiIsInMiOiI4aWkvMEd6dUR2QzJmZmE1cVE4eWJHZVAvMTJOUndyb2pnR0d6V1ZzZ1ljIn0",
+                "label": null,
+                "last_name": "",
+                "object": "external_account",
+                "provider": "oauth_discord",
+                "provider_user_id": "168830281808084992",
+                "public_metadata": {},
+                "username": "liteyear.",
+                "verification": {
+                    "attempts": null,
+                    "expire_at": 1696917317038,
+                    "status": "verified",
+                    "strategy": "oauth_discord"
+                }
+            }
+        ],
+        "external_id": null,
+        "first_name": "liteyear.",
+        "gender": "",
+        "has_image": true,
+        "id": "user_2WYk5fTdrBGRWVDSWdHrh4xmT8r",
+        "image_url": "https://img.clerk.com/eyJ0eXBlIjoicHJveHkiLCJzcmMiOiJodHRwczovL2ltYWdlcy5jbGVyay5kZXYvb2F1dGhfZGlzY29yZC9pbWdfMldZazVnTW5weU1hckQyTmZQandlQ2lNSjhiIn0",
+        "last_name": null,
+        "last_sign_in_at": null,
+        "locked": false,
+        "object": "user",
+        "password_enabled": false,
+        "phone_numbers": [],
+        "primary_email_address_id": "idn_2WYk5fXyeQqDiei8bt1ltx84VIy",
+        "primary_phone_number_id": null,
+        "primary_web3_wallet_id": null,
+        "private_metadata": {},
+        "profile_image_url": "https://images.clerk.dev/oauth_discord/img_2WYk5gMnpyMarD2NfPjweCiMJ8b",
+        "public_metadata": {},
+        "saml_accounts": [],
+        "totp_enabled": false,
+        "two_factor_enabled": false,
+        "unsafe_metadata": {},
+        "updated_at": 1696916718820,
+        "username": null,
+        "web3_wallets": []
+    },
+    "object": "event",
+    "type": "user.created"
+}
