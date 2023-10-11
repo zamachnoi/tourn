@@ -4,6 +4,8 @@ import type { WebhookEvent } from '@clerk/nextjs/server'
 import { Webhook } from 'svix'
 import { NextResponse, NextRequest } from 'next/server'
 import db from '@/db'
+import { users } from '@/schema'
+import { v4 as uuidv4 } from 'uuid'
 
 const webhookSecret: string = process.env.WEBHOOK_SECRET as string
 
@@ -34,10 +36,25 @@ async function handler(req: NextRequestWithSvixRequiredHeaders) {
         return NextResponse.json({}, { status: 400 })
     }
     const { id } = evt.data
+    const data = JSON.parse(payload).data
 
     const eventType = evt.type
     if (eventType === 'user.created') {
-        // TODO: use drizzle to insert into db
+        const clerkId = data.id
+        const name = data.first_name
+        const profilePic = data.image_url
+        const userId = uuidv4()
+
+        await db
+            .insert(users)
+            .values({
+                name: name,
+                userId: userId,
+                clerkId: clerkId,
+                profilePic: profilePic,
+                role: 'user',
+            })
+            .execute()
         return NextResponse.json({}, { status: 201 })
     }
 }

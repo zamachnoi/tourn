@@ -5,10 +5,10 @@ export default function () {
         <section className="flex h-[calc(100vh-74px)] flex-col overflow-auto bg-gradient-to-t from-slate-950 to-slate-900">
             <div className="ml-20 mt-48 flex w-max flex-col justify-center pl-12">
                 <div className="flex flex-col text-6xl font-bold">
-                    <h3 className="">Put game nights</h3>
-                    <h3 className="text-blue-500">under spotlights</h3>
+                    <h3 className="">Put your game nights</h3>
+                    <h3 className="text-blue-500">under the spotlight</h3>
                 </div>
-                <div className="mt-2 flex flex-col text-xl font-light text-gray-300">
+                <div className="mt-2 flex flex-col text-xl font-light text-gray-200">
                     <p>Create tournaments, draft teams, and track scores.</p>
                     <p>Tourn is the place to compete with your community.</p>
                 </div>
