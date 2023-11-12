@@ -1,10 +1,10 @@
-import { currentUser, auth } from '@clerk/nextjs'
-import { NextResponse } from 'next/server'
+import { auth } from '@clerk/nextjs'
+import { NextRequest, NextResponse } from 'next/server'
 import db from '@/db'
 import { competition } from '@/schema'
 import { v4 as uuidv4 } from 'uuid'
 import { users } from '@/schema'
-import { eq } from 'drizzle-orm'
+import { eq, sql } from 'drizzle-orm'
 
 export async function POST(req: Request) {
     const payload = await req.json()
@@ -41,4 +41,69 @@ export async function POST(req: Request) {
             'content-type': 'application/json',
         },
     })
+}
+
+export async function GET(req: NextRequest) {
+    const { userId } = auth()
+    if (!userId) {
+        return new NextResponse('Unauthorized', { status: 401 })
+    }
+
+    const url = new URL(req.url)
+
+    if (url == null) {
+        return new NextResponse('Bad Request', { status: 400 })
+    }
+
+    // Retrieve query parameters
+    const pageParam = url.searchParams.get('page')
+    const limitParam = url.searchParams.get('limit')
+    const userQueryParam = url.searchParams.get('userId') // Retrieve the userId query parameter
+    const page = pageParam !== null ? parseInt(pageParam, 10) : 1
+    const limit = limitParam !== null ? parseInt(limitParam, 10) : 10
+    const offset = (page - 1) * limit
+
+    // Build the query
+    let query = db
+        .select({
+            competitionId: competition.competitionId,
+            name: competition.name,
+            teamSize: competition.teamSize,
+            numTeams: competition.numTeams,
+            creatorId: competition.creatorId,
+            numSubs: competition.numSubs,
+        })
+        .from(competition)
+
+    // Add a condition if userId query parameter is present
+    if (userQueryParam) {
+        query = query.where(eq(competition.creatorId, userQueryParam))
+    }
+
+    const competitions = await query.limit(limit).offset(offset).execute()
+
+    const totalRecords = await db
+        .select({
+            count: sql<number>`cast(count(${competition.competitionId}) as int)`,
+        })
+        .from(competition)
+        .execute()
+        .then((result) => result[0].count)
+
+    const totalPages = Math.ceil(totalRecords / limit)
+
+    return new NextResponse(
+        JSON.stringify({
+            competitions,
+            pagination: {
+                currentPage: page,
+                totalPages,
+                limit,
+                totalRecords,
+            },
+        }),
+        {
+            headers: { 'content-type': 'application/json' },
+        }
+    )
 }

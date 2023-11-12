@@ -26,7 +26,6 @@ async function handler(req: NextRequestWithSvixRequiredHeaders) {
             'svix-timestamp': svix_timestamp as string,
             'svix-signature': svix_signature as string,
         }
-
         evt = wh.verify(payload, svixHeaders) as WebhookEvent
     } catch (e) {
         console.log(e)
