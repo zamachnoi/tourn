@@ -2,8 +2,9 @@
 
 import { NextRequest, NextResponse } from 'next/server'
 import db from '@/db'
-import { competition } from '@/schema'
+import { competition, users } from '@/schema'
 import { eq } from 'drizzle-orm'
+import { auth } from '@clerk/nextjs'
 
 export async function GET(req: NextRequest) {
     // Extracting the competition ID from the URL
@@ -13,6 +14,7 @@ export async function GET(req: NextRequest) {
     if (!id) {
         return new NextResponse('Competition ID is required', { status: 400 })
     }
+    console.log(id)
 
     // Fetch competition data by ID
     const competitionData = await db
@@ -29,5 +31,41 @@ export async function GET(req: NextRequest) {
         headers: {
             'content-type': 'application/json',
         },
+    })
+}
+
+export async function DELETE(req: NextRequest) {
+    const { userId } = auth()
+
+    if (!userId) {
+        return new NextResponse('Unauthorized', { status: 401 })
+    }
+
+    const url = new URL(req.url)
+    const id = url.pathname.split('/').pop()
+
+    if (!id) {
+        return new NextResponse('Competition ID is required', { status: 400 })
+    }
+
+    const res = await db
+        .select()
+        .from(competition)
+        .innerJoin(users, eq(users.userId, competition.creatorId))
+        .where(eq(users.clerkId, userId))
+        .where(eq(competition.competitionId, id))
+        .execute()
+
+    if (res.length === 0) {
+        return new NextResponse('Unauthorized', { status: 401 })
+    }
+
+    await db
+        .delete(competition)
+        .where(eq(competition.competitionId, id))
+        .execute()
+
+    return new NextResponse(null, {
+        status: 204,
     })
 }

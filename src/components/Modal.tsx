@@ -14,8 +14,6 @@ const handleCreateCompetition = (
     numSubs: number,
     closeModal: () => void
 ) => {
-    console.log(name, teamSize, numTeams, numSubs)
-
     fetch('/api/competitions', {
         method: 'POST',
         headers: {

@@ -1,8 +1,37 @@
+import { CompetitionData } from '@/components/Competition'
+import { CompetitionsList } from '@/components/CompetitionList'
 import CreateCompetition from '@/components/CreateCompetition'
-export default function Page() {
+import { auth } from '@clerk/nextjs'
+
+export async function getCompetitions(token: string | null) {
+    const headers: HeadersInit = {
+        'Content-Type': 'application/json',
+    }
+
+    // Add Authorization header only if token is not null
+    if (token) {
+        headers['Authorization'] = `Bearer ${token}`
+    }
+
+    const res = await fetch('http://localhost:3000/api/competitions', {
+        headers: headers,
+        cache: 'no-store',
+    })
+
+    const competitions = await res.json()
+
+    return competitions
+}
+
+export default async function Page() {
+    const { getToken } = auth()
+    const competitions = (await getCompetitions(
+        await getToken()
+    )) as CompetitionData
+
     return (
-        <div className="flex h-[calc(100vh-74px)] flex-col items-center overflow-auto bg-gradient-to-t from-slate-950 to-slate-900">
-            <h2 className="my-4 text-4xl font-semibold">Competitions</h2>
+        <div>
+            <CompetitionsList competitions={competitions.competitions} />
             <CreateCompetition />
         </div>
     )
