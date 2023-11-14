@@ -34,12 +34,12 @@ export function Competition(props: CompetitionProps) {
         if (response.ok) {
             props.onCompetitionDeleted()
         } else {
-            // Handle error (e.g., display error message)
+            console.error('Error deleting competition')
         }
     }
 
     return (
-        <div className="m-4 w-2/6 rounded-lg bg-slate-900 p-4">
+        <div className="m-4 w-1/5 rounded-lg bg-slate-950 p-4 drop-shadow-2xl">
             <div className="flex flex-row items-center justify-between">
                 <h3 className="text-2xl font-bold">{data.name}</h3>
                 <p className="text-xs">
@@ -53,7 +53,7 @@ export function Competition(props: CompetitionProps) {
             <p>Number of Subs: {data.numSubs}</p>
             <button
                 onClick={handleDelete}
-                className="rounded bg-red-500 p-2 text-white"
+                className=" rounded-md bg-black p-2 transition-colors duration-200 hover:bg-red-600"
             >
                 Delete Competition
             </button>

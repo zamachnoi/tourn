@@ -28,7 +28,6 @@ async function handler(req: NextRequestWithSvixRequiredHeaders) {
         }
         evt = wh.verify(payload, svixHeaders) as WebhookEvent
     } catch (e) {
-        console.log(e)
         // If the verification fails, return a 400 error
         return NextResponse.json({}, { status: 400 })
     }

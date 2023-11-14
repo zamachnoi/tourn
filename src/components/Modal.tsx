@@ -5,41 +5,15 @@ import { XMarkIcon } from '@heroicons/react/24/solid'
 interface ModalProps {
     isOpen: boolean
     onModalClose: () => void
+    onCompetitionCreated: () => void // New prop for callback
 }
 
-const handleCreateCompetition = (
-    name: string,
-    teamSize: number,
-    numTeams: number,
-    numSubs: number,
-    closeModal: () => void
-) => {
-    fetch('/api/competitions', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-            name: name,
-            teamSize: teamSize,
-            numTeams: numTeams,
-            numSubs: numSubs,
-        }),
-    })
-        .then((response) => {
-            if (response.ok) {
-                closeModal() // Close the modal on successful API response
-            }
-            // Handle non-successful responses
-        })
-        .catch((error) => {
-            console.error('Error creating competition:', error)
-            // Handle error
-        })
-    // on success, close the modal
-}
 // TODO: VALIDATION AND REMOVE CLICKY THING
-const Modal: React.FC<ModalProps> = ({ isOpen, onModalClose }) => {
+const Modal: React.FC<ModalProps> = ({
+    isOpen,
+    onModalClose,
+    onCompetitionCreated,
+}) => {
     const cancelButtonRef = useRef(null)
 
     // State for input fields
@@ -47,6 +21,38 @@ const Modal: React.FC<ModalProps> = ({ isOpen, onModalClose }) => {
     const [teamSize, setTeamSize] = useState(0)
     const [numTeams, setNumTeams] = useState(0)
     const [numSubs, setNumSubs] = useState(0)
+
+    const handleCreateCompetition = (
+        name: string,
+        teamSize: number,
+        numTeams: number,
+        numSubs: number,
+        closeModal: () => void
+    ) => {
+        fetch('/api/competitions', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                name: name,
+                teamSize: teamSize,
+                numTeams: numTeams,
+                numSubs: numSubs,
+            }),
+        })
+            .then((response) => {
+                if (response.ok) {
+                    closeModal() // Close the modal on successful API response
+                    onCompetitionCreated()
+                }
+                // Handle non-successful responses
+            })
+            .catch((error) => {
+                console.error('Error creating competition:', error)
+                // Handle error
+            })
+    }
 
     return (
         <Transition.Root appear show={isOpen} as={Fragment}>

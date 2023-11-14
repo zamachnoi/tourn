@@ -1,38 +1,44 @@
+'use client'
 import { CompetitionData } from '@/components/Competition'
-import { CompetitionsList } from '@/components/CompetitionList'
+import { CompetitionList } from '@/components/CompetitionList'
 import CreateCompetition from '@/components/CreateCompetition'
-import { auth } from '@clerk/nextjs'
+import { useState, useEffect } from 'react'
 
-export async function getCompetitions(token: string | null) {
-    const headers: HeadersInit = {
-        'Content-Type': 'application/json',
-    }
-
-    // Add Authorization header only if token is not null
-    if (token) {
-        headers['Authorization'] = `Bearer ${token}`
-    }
-
-    const res = await fetch('http://localhost:3000/api/competitions', {
-        headers: headers,
+export async function getCompetitions() {
+    const res = await fetch('/api/competitions', {
         cache: 'no-store',
     })
 
     const competitions = await res.json()
+    console.log('fetched')
 
-    return competitions
+    return competitions as CompetitionData
 }
 
-export default async function Page() {
-    const { getToken } = auth()
-    const competitions = (await getCompetitions(
-        await getToken()
-    )) as CompetitionData
+export default function Page() {
+    const [competitions, setCompetitions] = useState<CompetitionData>({
+        competitions: [],
+        pagination: {
+            currentPage: 0,
+            totalPages: 0,
+            limit: 1,
+            totalRecords: 0,
+        },
+    })
+
+    const refreshCompetitionList = async () => {
+        const fetchedCompetitions = await getCompetitions()
+        setCompetitions(fetchedCompetitions)
+    }
+
+    useEffect(() => {
+        refreshCompetitionList()
+    }, [])
 
     return (
-        <div>
-            <CompetitionsList competitions={competitions.competitions} />
-            <CreateCompetition />
+        <div className="flex h-[calc(100vh-74px)] flex-col items-center overflow-auto bg-gradient-to-t from-slate-950 to-slate-900">
+            <CompetitionList competitions={competitions.competitions} />
+            <CreateCompetition onCompetitionCreated={refreshCompetitionList} />
         </div>
     )
 }

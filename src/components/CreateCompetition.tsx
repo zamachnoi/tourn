@@ -2,7 +2,13 @@
 import React, { useState } from 'react'
 import Modal from '@/components/Modal'
 
-const CreateCompetition = () => {
+interface CreateCompetitionProps {
+    onCompetitionCreated: () => void
+}
+
+const CreateCompetition: React.FC<CreateCompetitionProps> = ({
+    onCompetitionCreated,
+}) => {
     const [isModalOpen, setIsModalOpen] = useState(false)
 
     const handleOpenModal = () => {
@@ -20,7 +26,7 @@ const CreateCompetition = () => {
                     e.preventDefault()
                     handleOpenModal()
                 }}
-                className="ease ring-green-indigo-200 group relative z-30 box-border inline-flex w-auto cursor-pointer items-center justify-center overflow-hidden rounded-md bg-green-500 px-8 py-3 font-bold text-white ring-1 ring-green-300 ring-offset-2 transition-all duration-300 hover:ring-offset-green-500 focus:outline-none"
+                className="ease ring-green-indigo-200 group relative z-30 m-4 box-border inline-flex w-1/12 w-auto cursor-pointer items-center justify-center overflow-hidden rounded-md bg-green-500 px-8 py-3 font-bold text-white ring-1 ring-green-300 ring-offset-2 transition-all duration-300 hover:ring-offset-green-500 focus:outline-none"
             >
                 <span className="absolute bottom-0 right-0 -mb-8 -mr-5 h-20 w-8 translate-x-1 rotate-45 transform bg-white opacity-10 transition-all duration-300 ease-out group-hover:translate-x-0"></span>
                 <span className="absolute left-0 top-0 -ml-12 -mt-1 h-8 w-20 -translate-x-1 -rotate-45 transform bg-white opacity-10 transition-all duration-300 ease-out group-hover:translate-x-0"></span>
@@ -43,7 +49,11 @@ const CreateCompetition = () => {
                 </span>
             </a>
             {isModalOpen && (
-                <Modal isOpen={isModalOpen} onModalClose={handleCloseModal} />
+                <Modal
+                    isOpen={isModalOpen}
+                    onModalClose={handleCloseModal}
+                    onCompetitionCreated={onCompetitionCreated}
+                />
             )}
         </>
     )

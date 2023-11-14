@@ -14,7 +14,6 @@ export async function GET(req: NextRequest) {
     if (!id) {
         return new NextResponse('Competition ID is required', { status: 400 })
     }
-    console.log(id)
 
     // Fetch competition data by ID
     const competitionData = await db
