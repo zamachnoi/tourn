@@ -2,6 +2,7 @@
 import { Competition, CompetitionProps } from './Competition'
 import React, { useState, useEffect } from 'react'
 import { getCompetitions } from '@/app/competitions/page'
+import { Comp } from './comp'
 
 export interface CompetitionsListProps {
     competitions: CompetitionProps['data'][]
@@ -23,9 +24,14 @@ export function CompetitionList(props: CompetitionsListProps) {
     }
 
     return (
-        <div className="flex w-full flex-row justify-center">
+        <div className="flex w-full flex-row justify-center gap-2">
             {competitions.map((competition) => (
-                <Competition
+                // <Competition
+                //     key={competition.competitionId}
+                //     data={competition}
+                //     onCompetitionDeleted={refreshCompetitions}
+                // />
+                <Comp
                     key={competition.competitionId}
                     data={competition}
                     onCompetitionDeleted={refreshCompetitions}

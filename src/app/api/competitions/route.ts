@@ -63,7 +63,7 @@ export async function GET(req: NextRequest) {
     const limit = limitParam !== null ? parseInt(limitParam, 10) : 10
     const offset = (page - 1) * limit
 
-    // Build the query
+    // innerJoin users table to get the creator's name and profile pic
     let query = db
         .select({
             competitionId: competition.competitionId,
@@ -72,8 +72,11 @@ export async function GET(req: NextRequest) {
             numTeams: competition.numTeams,
             creatorId: competition.creatorId,
             numSubs: competition.numSubs,
+            creatorName: users.name,
+            creatorProfilePic: users.profilePic,
         })
         .from(competition)
+        .innerJoin(users, eq(users.userId, competition.creatorId))
 
     // Add a condition if userId query parameter is present
     if (userQueryParam) {
