@@ -12,7 +12,6 @@ import {
 } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { useState } from 'react'
-import db from '@/db'
 import { useUser } from '@clerk/nextjs'
 
 export interface CompetitionProps {
@@ -26,29 +25,25 @@ export interface CompetitionProps {
         creatorName: string
         creatorProfilePic: string
         clerkId: string
+        playerCount: number
     }
     onCompetitionDeleted: () => void
-}
-export interface CompetitionData {
-    competitions: CompetitionProps['data'][]
-    pagination: {
-        currentPage: number
-        totalPages: number
-        limit: number
-        totalRecords: number
-    }
 }
 
 export function Comp(props: CompetitionProps) {
     const { data } = props
 
+    const [competitionPlayerCount, setCompetitionPlayerCount] = useState(
+        data.playerCount
+    )
+
     const clerkUser = useUser().user
-    let clerkId = ''
+    let currUserClerkId = ''
     if (clerkUser) {
-        clerkId = clerkUser.id
+        currUserClerkId = clerkUser.id
     }
 
-    const isCreator = data.clerkId === clerkId
+    const isCreator = data.clerkId === currUserClerkId
 
     // TODO: Create spinner for deleting loading state
 
@@ -64,6 +59,21 @@ export function Comp(props: CompetitionProps) {
                 props.onCompetitionDeleted()
             } else {
                 console.error('Error deleting competition')
+            }
+        } else {
+            const response = await fetch(
+                `/api/competitions/${data.competitionId}/join`,
+                {
+                    method: 'POST',
+                    body: JSON.stringify({
+                        clerkAssignId: currUserClerkId,
+                    }),
+                }
+            )
+            if (response.ok) {
+                setCompetitionPlayerCount(competitionPlayerCount + 1)
+            } else {
+                console.error('Error joining competition')
             }
         }
     }
@@ -124,7 +134,7 @@ export function Comp(props: CompetitionProps) {
                         <line x1="16" x2="8" y1="17" y2="17" />
                         <line x1="10" x2="8" y1="9" y2="9" />
                     </svg>
-                    <p className="text-sm">Submissions: 100</p>
+                    <p className="text-sm">Players: {competitionPlayerCount}</p>
                 </div>
                 <div className="flex items-center gap-2">
                     <svg

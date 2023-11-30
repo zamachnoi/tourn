@@ -2,8 +2,8 @@
 
 import { NextRequest, NextResponse } from 'next/server'
 import db from '@/db'
-import { competition, users } from '@/schema'
-import { eq } from 'drizzle-orm'
+import { competition, users, competitionPlayer } from '@/schema'
+import { eq, and, sql } from 'drizzle-orm'
 import { auth } from '@clerk/nextjs'
 
 export async function GET(req: NextRequest) {
@@ -17,11 +17,24 @@ export async function GET(req: NextRequest) {
 
     // Fetch competition data by ID
     const competitionData = await db
-        .select()
+        .select({
+            competitionId: competition.competitionId,
+            name: competition.name,
+            teamSize: competition.teamSize,
+            numTeams: competition.numTeams,
+            creatorId: competition.creatorId,
+            numSubs: competition.numSubs,
+            creatorName: users.name,
+            creatorProfilePic: users.profilePic,
+            clerkId: users.clerkId,
+            playerCount: sql`(
+          SELECT COUNT(*)::int
+          FROM ${competitionPlayer}
+          WHERE ${competitionPlayer.competitionId} = ${competition.competitionId})`,
+        })
         .from(competition)
         .innerJoin(users, eq(users.userId, competition.creatorId))
         .where(eq(competition.competitionId, id))
-        .execute()
 
     if (competitionData.length === 0) {
         return new NextResponse('Competition not found', { status: 404 })
@@ -52,8 +65,9 @@ export async function DELETE(req: NextRequest) {
         .select()
         .from(competition)
         .innerJoin(users, eq(users.userId, competition.creatorId))
-        .where(eq(users.clerkId, userId))
-        .where(eq(competition.competitionId, id))
+        .where(
+            and(eq(competition.competitionId, id), eq(users.clerkId, userId))
+        )
         .execute()
 
     if (res.length === 0) {

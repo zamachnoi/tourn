@@ -1,6 +1,5 @@
 'use client'
-import { CompetitionData } from '@/components/Competition'
-import { CompetitionList } from '@/components/CompetitionList'
+import { CompetitionList, CompetitionData } from '@/components/CompetitionList'
 import CreateCompetition from '@/components/CreateCompetition'
 import { useState, useEffect } from 'react'
 
@@ -10,7 +9,6 @@ export async function getCompetitions() {
     })
 
     const competitions = await res.json()
-    console.log(competitions)
 
     return competitions as CompetitionData
 }

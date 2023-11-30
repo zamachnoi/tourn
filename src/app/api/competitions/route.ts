@@ -1,10 +1,10 @@
 import { auth } from '@clerk/nextjs'
 import { NextRequest, NextResponse } from 'next/server'
 import db from '@/db'
-import { competition } from '@/schema'
+import { competition, competitionPlayer } from '@/schema'
 import { v4 as uuidv4 } from 'uuid'
 import { users } from '@/schema'
-import { eq, sql } from 'drizzle-orm'
+import { count, eq, sql } from 'drizzle-orm'
 
 export async function POST(req: Request) {
     const payload = await req.json()
@@ -23,6 +23,8 @@ export async function POST(req: Request) {
 
     const competitionId = uuidv4()
 
+    const userUuid = result[0].userId
+
     const comp = await db
         .insert(competition)
         .values({
@@ -30,7 +32,7 @@ export async function POST(req: Request) {
             name: payload.name,
             teamSize: payload.teamSize,
             numTeams: payload.numTeams,
-            creatorId: result[0].userId,
+            creatorId: userUuid,
             numSubs: payload.numSubs,
         })
         .returning()
@@ -64,25 +66,41 @@ export async function GET(req: NextRequest) {
     const offset = (page - 1) * limit
 
     // innerJoin users table to get the creator's name and profile pic
-    let query = db
-        .select({
-            competitionId: competition.competitionId,
-            name: competition.name,
-            teamSize: competition.teamSize,
-            numTeams: competition.numTeams,
-            creatorId: competition.creatorId,
-            numSubs: competition.numSubs,
-            creatorName: users.name,
-            creatorProfilePic: users.profilePic,
-            clerkId: users.clerkId,
-        })
-        .from(competition)
-        .innerJoin(users, eq(users.userId, competition.creatorId))
 
-    // Add a condition if userId query parameter is present
-    if (userQueryParam) {
-        query = query.where(eq(competition.creatorId, userQueryParam))
-    }
+    let query = userQueryParam
+        ? db
+              .select({
+                  competitionId: competition.competitionId,
+                  name: competition.name,
+                  teamSize: competition.teamSize,
+                  numTeams: competition.numTeams,
+                  creatorId: competition.creatorId,
+                  numSubs: competition.numSubs,
+                  creatorName: users.name,
+                  creatorProfilePic: users.profilePic,
+                  clerkId: users.clerkId,
+              })
+              .from(competition)
+              .innerJoin(users, eq(users.userId, competition.creatorId))
+              .where(eq(competition.creatorId, userQueryParam))
+        : db
+              .select({
+                  competitionId: competition.competitionId,
+                  name: competition.name,
+                  teamSize: competition.teamSize,
+                  numTeams: competition.numTeams,
+                  creatorId: competition.creatorId,
+                  numSubs: competition.numSubs,
+                  creatorName: users.name,
+                  creatorProfilePic: users.profilePic,
+                  clerkId: users.clerkId,
+                  playerCount: sql`(
+                    SELECT COUNT(*)::int
+                    FROM ${competitionPlayer}
+                    WHERE ${competitionPlayer.competitionId} = ${competition.competitionId})`,
+              })
+              .from(competition)
+              .innerJoin(users, eq(users.userId, competition.creatorId))
 
     const competitions = await query.limit(limit).offset(offset).execute()
 

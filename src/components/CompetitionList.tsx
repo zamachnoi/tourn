@@ -2,10 +2,18 @@
 import React, { useState, useEffect } from 'react'
 import { getCompetitions } from '@/app/competitions/page'
 import { Comp, CompetitionProps } from './Competition'
-import { useUser } from '@clerk/nextjs'
 
 export interface CompetitionsListProps {
     competitions: CompetitionProps['data'][]
+}
+export interface CompetitionData {
+    competitions: CompetitionProps['data'][]
+    pagination: {
+        currentPage: number
+        totalPages: number
+        limit: number
+        totalRecords: number
+    }
 }
 
 export function CompetitionList(props: CompetitionsListProps) {

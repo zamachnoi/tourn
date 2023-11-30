@@ -3,12 +3,13 @@ import {
     foreignKey,
     pgEnum,
     uuid,
+    uniqueIndex,
     varchar,
     integer,
-    uniqueIndex,
+    timestamp,
 } from 'drizzle-orm/pg-core'
-
 import { sql } from 'drizzle-orm'
+
 export const keyStatus = pgEnum('key_status', [
     'default',
     'valid',
@@ -28,23 +29,22 @@ export const keyType = pgEnum('key_type', [
     'secretstream',
     'stream_xchacha20',
 ])
-export const factorType = pgEnum('factor_type', ['totp', 'webauthn'])
-export const factorStatus = pgEnum('factor_status', ['unverified', 'verified'])
 export const aalLevel = pgEnum('aal_level', ['aal1', 'aal2', 'aal3'])
 export const codeChallengeMethod = pgEnum('code_challenge_method', [
     's256',
     'plain',
 ])
+export const factorStatus = pgEnum('factor_status', ['unverified', 'verified'])
+export const factorType = pgEnum('factor_type', ['totp', 'webauthn'])
 
-export const competition = pgTable('competition', {
-    competitionId: uuid('competition_id').primaryKey().notNull(),
-    name: varchar('name').notNull(),
-    teamSize: integer('team_size').notNull(),
-    numTeams: integer('num_teams').notNull(),
-    creatorId: uuid('creator_id')
+export const competitionPlayer = pgTable('competition_player', {
+    userId: uuid('user_id')
         .notNull()
         .references(() => users.userId),
-    numSubs: integer('num_subs').notNull(),
+    competitionId: uuid('competition_id')
+        .notNull()
+        .references(() => competition.competitionId),
+    teamId: uuid('team_id').references(() => team.teamId),
 })
 
 export const users = pgTable(
@@ -65,6 +65,18 @@ export const users = pgTable(
     }
 )
 
+export const competition = pgTable('competition', {
+    competitionId: uuid('competition_id').primaryKey().notNull(),
+    name: varchar('name').notNull(),
+    teamSize: integer('team_size').notNull(),
+    numTeams: integer('num_teams').notNull(),
+    creatorId: uuid('creator_id')
+        .notNull()
+        .references(() => users.userId),
+    numSubs: integer('num_subs').notNull(),
+    startDate: timestamp('start_date', { withTimezone: true, mode: 'string' }),
+})
+
 export const team = pgTable('team', {
     teamId: uuid('team_id').defaultRandom().primaryKey().notNull(),
     name: varchar('name').notNull(),
@@ -74,14 +86,4 @@ export const team = pgTable('team', {
     competitionId: uuid('competition_id')
         .notNull()
         .references(() => competition.competitionId),
-})
-
-export const competitionPlayer = pgTable('competition_player', {
-    userId: uuid('user_id')
-        .notNull()
-        .references(() => users.userId),
-    competitionId: uuid('competition_id')
-        .notNull()
-        .references(() => competition.competitionId),
-    teamId: uuid('team_id').references(() => team.teamId),
 })
