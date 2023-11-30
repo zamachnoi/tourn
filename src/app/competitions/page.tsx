@@ -10,7 +10,7 @@ export async function getCompetitions() {
     })
 
     const competitions = await res.json()
-    console.log('fetched')
+    console.log(competitions)
 
     return competitions as CompetitionData
 }

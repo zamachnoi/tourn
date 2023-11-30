@@ -19,6 +19,7 @@ export async function GET(req: NextRequest) {
     const competitionData = await db
         .select()
         .from(competition)
+        .innerJoin(users, eq(users.userId, competition.creatorId))
         .where(eq(competition.competitionId, id))
         .execute()
 

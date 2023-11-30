@@ -74,6 +74,7 @@ export async function GET(req: NextRequest) {
             numSubs: competition.numSubs,
             creatorName: users.name,
             creatorProfilePic: users.profilePic,
+            clerkId: users.clerkId,
         })
         .from(competition)
         .innerJoin(users, eq(users.userId, competition.creatorId))
