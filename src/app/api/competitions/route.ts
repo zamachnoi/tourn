@@ -123,8 +123,6 @@ export async function GET(req: NextRequest) {
         .execute()
         .then((result) => result[0].count)
 
-    console.log(userCompetitions)
-
     const totalPages = Math.ceil(totalRecords / limit)
 
     return new NextResponse(

@@ -37,7 +37,7 @@ export function Comp(props: CompetitionProps) {
     const [competitionPlayerCount, setCompetitionPlayerCount] = useState(
         data.playerCount
     )
-    const [isDeleting, setIsDeleting] = useState(false)
+    const [isLoading, setIsLoading] = useState(false)
 
     const clerkUser = useUser().user
 
@@ -51,8 +51,8 @@ export function Comp(props: CompetitionProps) {
     // TODO: Create spinner for deleting loading state
 
     const handleAction = async () => {
+        setIsLoading(true)
         if (isCreator) {
-            setIsDeleting(true)
             const response = await fetch(
                 `/api/competitions/${data.competitionId}`,
                 {
@@ -97,6 +97,7 @@ export function Comp(props: CompetitionProps) {
                 console.error('Error leaving competition')
             }
         }
+        setIsLoading(false)
     }
     return (
         <Card className="m-4 rounded-lg bg-gray-800 p-6 shadow-lg">
@@ -186,29 +187,26 @@ export function Comp(props: CompetitionProps) {
                 </div>
             </CardContent>
             <CardFooter className="mt-4 flex justify-center">
-                {
-                    // Change this to spinner
-                    isCreator && isDeleting ? (
-                        <div className="h-6 w-6 animate-spin rounded-full border-b-2 border-white"></div>
-                    ) : (
-                        <Button
-                            onClick={handleAction}
-                            className={`outline-none transition duration-300 ease-in-out ${
-                                isCreator
-                                    ? 'bg-red-600 hover:bg-gray-700'
-                                    : userInCompBool
-                                    ? 'bg-yellow-600 hover:bg-gray-700'
-                                    : 'bg-green-500 hover:bg-gray-700'
-                            }`}
-                        >
-                            {isCreator
-                                ? 'Delete'
+                {isLoading ? (
+                    <div className="h-6 w-6 animate-spin rounded-full border-b-2 border-white"></div>
+                ) : (
+                    <Button
+                        onClick={handleAction}
+                        className={`outline-none transition duration-300 ease-in-out ${
+                            isCreator
+                                ? 'bg-red-600 hover:bg-gray-700'
                                 : userInCompBool
-                                ? 'Leave'
-                                : 'Join'}
-                        </Button>
-                    )
-                }
+                                ? 'bg-yellow-600 hover:bg-gray-700'
+                                : 'bg-green-500 hover:bg-gray-700'
+                        }`}
+                    >
+                        {isCreator
+                            ? 'Delete'
+                            : userInCompBool
+                            ? 'Leave'
+                            : 'Join'}
+                    </Button>
+                )}
             </CardFooter>
         </Card>
     )
