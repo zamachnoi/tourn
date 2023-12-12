@@ -1,13 +1,13 @@
 import db from '@/db'
 import { competition, competitionPlayer, users } from '@/schema'
 import { NextResponse } from 'next/server'
-import { eq, sql } from 'drizzle-orm'
+import { and, eq, sql } from 'drizzle-orm'
 
 type JoinCompetitionPayload = {
     clerkAssignId: string
 }
 
-export async function POST(req: Request) {
+export async function DELETE(req: Request) {
     const payload: JoinCompetitionPayload = await req.json()
 
     const { clerkAssignId: clerkId } = payload
@@ -53,12 +53,13 @@ export async function POST(req: Request) {
 
     try {
         const ins = await db
-            .insert(competitionPlayer)
-            .values({
-                userId: userId,
-                competitionId: id,
-                teamId: null,
-            })
+            .delete(competitionPlayer)
+            .where(
+                and(
+                    eq(competitionPlayer.userId, userId),
+                    eq(competitionPlayer.competitionId, id)
+                )
+            )
             .execute()
         return new NextResponse(JSON.stringify(ins), {
             headers: {

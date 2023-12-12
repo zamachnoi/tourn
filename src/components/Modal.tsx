@@ -21,6 +21,7 @@ const Modal: React.FC<ModalProps> = ({
     const [teamSize, setTeamSize] = useState(0)
     const [numTeams, setNumTeams] = useState(0)
     const [numSubs, setNumSubs] = useState(0)
+    const [creating, setCreating] = useState(false)
 
     const handleCreateCompetition = (
         name: string,
@@ -174,21 +175,26 @@ const Modal: React.FC<ModalProps> = ({
                                     className="mb-2 block w-full rounded-lg border border-gray-300 bg-gray-50 p-2 text-gray-900 outline-none outline-1 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400 sm:text-xs"
                                 />
                                 <div className="mt-4 flex justify-end">
-                                    <button
-                                        type="button"
-                                        className="inline-flex justify-center rounded-md border border-transparent bg-green-500 px-4 py-2 text-sm font-medium text-white hover:bg-green-600 focus:outline-none"
-                                        onClick={() =>
-                                            handleCreateCompetition(
-                                                name,
-                                                teamSize,
-                                                numTeams,
-                                                numSubs,
-                                                onModalClose
-                                            )
-                                        }
-                                    >
-                                        Create
-                                    </button>
+                                    {!creating ? (
+                                        <button
+                                            type="button"
+                                            className="inline-flex justify-center rounded-md border border-transparent bg-green-500 px-4 py-2 text-sm font-medium text-white hover:bg-green-600 focus:outline-none"
+                                            onClick={() => {
+                                                setCreating(true)
+                                                handleCreateCompetition(
+                                                    name,
+                                                    teamSize,
+                                                    numTeams,
+                                                    numSubs,
+                                                    onModalClose
+                                                )
+                                            }}
+                                        >
+                                            Create
+                                        </button>
+                                    ) : (
+                                        <div className="h-6 w-6 animate-spin rounded-full border-b-2 border-white"></div>
+                                    )}
                                 </div>
                             </div>
                         </div>

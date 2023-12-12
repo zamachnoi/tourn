@@ -50,6 +50,7 @@ export async function GET(req: NextRequest) {
     if (!userId) {
         return new NextResponse('Unauthorized', { status: 401 })
     }
+    const clerkId = userId
 
     const url = new URL(req.url)
 
@@ -66,7 +67,6 @@ export async function GET(req: NextRequest) {
     const offset = (page - 1) * limit
 
     // innerJoin users table to get the creator's name and profile pic
-
     let query = userQueryParam
         ? db
               .select({
@@ -104,6 +104,17 @@ export async function GET(req: NextRequest) {
 
     const competitions = await query.limit(limit).offset(offset).execute()
 
+    let userCompetitions = []
+    // TODO: Only do this if userQueryParam is null if null, then just add all competitions to userCompetitions
+    userCompetitions = await db
+        .select({
+            competitionId: competitionPlayer.competitionId,
+        })
+        .from(competitionPlayer)
+        .innerJoin(users, eq(users.userId, competitionPlayer.userId))
+        .where(eq(users.clerkId, clerkId))
+        .execute()
+
     const totalRecords = await db
         .select({
             count: sql<number>`cast(count(${competition.competitionId}) as int)`,
@@ -112,11 +123,14 @@ export async function GET(req: NextRequest) {
         .execute()
         .then((result) => result[0].count)
 
+    console.log(userCompetitions)
+
     const totalPages = Math.ceil(totalRecords / limit)
 
     return new NextResponse(
         JSON.stringify({
             competitions,
+            userCompetitions,
             pagination: {
                 currentPage: page,
                 totalPages,

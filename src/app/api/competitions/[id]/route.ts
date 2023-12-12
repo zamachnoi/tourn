@@ -48,6 +48,7 @@ export async function GET(req: NextRequest) {
 }
 
 export async function DELETE(req: NextRequest) {
+    // ADD CASCADING DELETE
     const { userId } = auth()
 
     if (!userId) {

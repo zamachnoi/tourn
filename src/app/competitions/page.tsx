@@ -9,11 +9,11 @@ export async function getCompetitions() {
     })
 
     const competitions = await res.json()
-
-    return competitions as CompetitionData
+    return competitions
 }
 
 export default function Page() {
+    const [userCompetitions, setUserCompetitions] = useState<string[]>([])
     const [competitions, setCompetitions] = useState<CompetitionData>({
         competitions: [],
         pagination: {
@@ -27,6 +27,10 @@ export default function Page() {
     const refreshCompetitionList = async () => {
         const fetchedCompetitions = await getCompetitions()
         setCompetitions(fetchedCompetitions)
+        const userComps = fetchedCompetitions.userCompetitions.map(
+            (competition: any) => competition.competitionId
+        )
+        setUserCompetitions(userComps)
     }
 
     useEffect(() => {
@@ -35,7 +39,10 @@ export default function Page() {
 
     return (
         <div className="flex h-[calc(100vh-74px)] flex-col items-center overflow-auto bg-gradient-to-t from-slate-950 to-slate-900">
-            <CompetitionList competitions={competitions.competitions} />
+            <CompetitionList
+                competitions={competitions.competitions}
+                userCompetitions={userCompetitions}
+            />
             <CreateCompetition onCompetitionCreated={refreshCompetitionList} />
         </div>
     )

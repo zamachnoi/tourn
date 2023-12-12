@@ -27,17 +27,20 @@ export interface CompetitionProps {
         clerkId: string
         playerCount: number
     }
+    userInComp: boolean
     onCompetitionDeleted: () => void
 }
 
 export function Comp(props: CompetitionProps) {
     const { data } = props
-
+    const [userInCompBool, setUserInCompBool] = useState(props.userInComp)
     const [competitionPlayerCount, setCompetitionPlayerCount] = useState(
         data.playerCount
     )
+    const [isDeleting, setIsDeleting] = useState(false)
 
     const clerkUser = useUser().user
+
     let currUserClerkId = ''
     if (clerkUser) {
         currUserClerkId = clerkUser.id
@@ -49,6 +52,7 @@ export function Comp(props: CompetitionProps) {
 
     const handleAction = async () => {
         if (isCreator) {
+            setIsDeleting(true)
             const response = await fetch(
                 `/api/competitions/${data.competitionId}`,
                 {
@@ -60,7 +64,7 @@ export function Comp(props: CompetitionProps) {
             } else {
                 console.error('Error deleting competition')
             }
-        } else {
+        } else if (!userInCompBool) {
             const response = await fetch(
                 `/api/competitions/${data.competitionId}/join`,
                 {
@@ -72,8 +76,25 @@ export function Comp(props: CompetitionProps) {
             )
             if (response.ok) {
                 setCompetitionPlayerCount(competitionPlayerCount + 1)
+                setUserInCompBool(true)
             } else {
                 console.error('Error joining competition')
+            }
+        } else {
+            const response = await fetch(
+                `/api/competitions/${data.competitionId}/leave`,
+                {
+                    method: 'DELETE',
+                    body: JSON.stringify({
+                        clerkAssignId: currUserClerkId,
+                    }),
+                }
+            )
+            if (response.ok) {
+                setCompetitionPlayerCount(competitionPlayerCount - 1)
+                setUserInCompBool(false)
+            } else {
+                console.error('Error leaving competition')
             }
         }
     }
@@ -165,16 +186,29 @@ export function Comp(props: CompetitionProps) {
                 </div>
             </CardContent>
             <CardFooter className="mt-4 flex justify-center">
-                <Button
-                    onClick={handleAction}
-                    className={`outline-none transition duration-300 ease-in-out ${
-                        isCreator
-                            ? 'bg-red-600 hover:bg-gray-700'
-                            : 'bg-green-600 hover:bg-gray-700'
-                    }`}
-                >
-                    {isCreator ? 'Delete' : 'Join'}
-                </Button>
+                {
+                    // Change this to spinner
+                    isCreator && isDeleting ? (
+                        <div className="h-6 w-6 animate-spin rounded-full border-b-2 border-white"></div>
+                    ) : (
+                        <Button
+                            onClick={handleAction}
+                            className={`outline-none transition duration-300 ease-in-out ${
+                                isCreator
+                                    ? 'bg-red-600 hover:bg-gray-700'
+                                    : userInCompBool
+                                    ? 'bg-yellow-600 hover:bg-gray-700'
+                                    : 'bg-green-500 hover:bg-gray-700'
+                            }`}
+                        >
+                            {isCreator
+                                ? 'Delete'
+                                : userInCompBool
+                                ? 'Leave'
+                                : 'Join'}
+                        </Button>
+                    )
+                }
             </CardFooter>
         </Card>
     )
