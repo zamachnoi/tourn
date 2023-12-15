@@ -1,7 +1,7 @@
 import { Fragment, useRef, useState } from 'react'
 import { Dialog, Transition } from '@headlessui/react'
 import { XMarkIcon } from '@heroicons/react/24/solid'
-import { CompetitionProps } from './Competition'
+import { CompetitionProps } from './CompetitionInList'
 
 interface ModalProps {
     isOpen: boolean

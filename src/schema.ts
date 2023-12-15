@@ -53,7 +53,7 @@ export const users = pgTable(
         userId: uuid('user_id').primaryKey().notNull(),
         name: varchar('name').notNull(),
         role: varchar('role'),
-        profilePic: varchar('profile_pic'),
+        profilePic: varchar('profile_pic').notNull(),
         clerkId: varchar('clerk_id').notNull(),
     },
     (table) => {

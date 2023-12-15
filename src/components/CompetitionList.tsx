@@ -1,8 +1,7 @@
 'use client'
 import React, { useState, useEffect } from 'react'
 import { getCompetitions } from '@/app/competitions/page'
-import { Comp, CompetitionProps } from './Competition'
-import { ConsoleLogWriter } from 'drizzle-orm'
+import { Competition, CompetitionProps } from './CompetitionInList'
 
 export interface CompetitionsListProps {
     competitions: CompetitionProps['data'][]
@@ -61,13 +60,13 @@ export function CompetitionList(props: CompetitionsListProps) {
     return (
         <div className="grid grid-flow-row-dense grid-cols-3 justify-items-start gap-2 transition-all ease-linear">
             {competitions.map((competition) => (
-                <Comp
+                <Competition
                     key={competition.competitionId}
                     data={competition}
                     userInComp={userJoinedCompetitions.includes(
                         competition.competitionId
                     )}
-                    onCompetitionDeleted={removeCompetition}
+                    // onCompetitionDeleted={() => {}}
                 />
             ))}
         </div>

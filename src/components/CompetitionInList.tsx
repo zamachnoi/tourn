@@ -28,11 +28,15 @@ export interface CompetitionProps {
         playerCount: number
     }
     userInComp: boolean
-    onCompetitionDeleted: (competitionId: string) => void
+    // onCompetitionDeleted: (competitionId: string) => void
 }
 
-export function Comp(props: CompetitionProps) {
-    const { data, onCompetitionDeleted, userInComp } = props
+export function Competition(props: CompetitionProps) {
+    const {
+        data,
+        // onCompetitionDeleted,
+        userInComp,
+    } = props
     const [userInCompBool, setUserInCompBool] = useState(userInComp)
     const [competitionPlayerCount, setCompetitionPlayerCount] = useState(
         data.playerCount
@@ -67,7 +71,7 @@ export function Comp(props: CompetitionProps) {
                     )
                     if (response.ok) {
                         setIsDeleted(true)
-                        onCompetitionDeleted(data.competitionId)
+                        // onCompetitionDeleted(data.competitionId)
                     } else {
                         console.error('Error deleting competition')
                     }
@@ -118,6 +122,10 @@ export function Comp(props: CompetitionProps) {
     const cardClasses = `m-4 rounded-lg bg-gray-800 p-6 shadow-lg transition-all duration-300 ${
         isExiting ? 'opacity-0 scale-95' : 'opacity-100 scale-100'
     }`
+
+    const routeToCompetition = () => {
+        window.location.href = `/competitions/${data.competitionId}`
+    }
 
     return (
         <Card className={cardClasses}>
@@ -206,7 +214,7 @@ export function Comp(props: CompetitionProps) {
                     <p className="text-sm">Date: November 19, 2023</p>
                 </div>
             </CardContent>
-            <CardFooter className="mt-4 flex justify-center">
+            <CardFooter className="mt-4 flex justify-center gap-2">
                 {isLoading ? (
                     <div className="h-6 w-6 animate-spin rounded-full border-b-2 border-white"></div>
                 ) : (
@@ -227,6 +235,12 @@ export function Comp(props: CompetitionProps) {
                             : 'Join'}
                     </Button>
                 )}
+                <Button
+                    onClick={routeToCompetition}
+                    className="bg-gray-700 outline-none transition duration-300 ease-in-out hover:bg-gray-800"
+                >
+                    View
+                </Button>
             </CardFooter>
         </Card>
     )

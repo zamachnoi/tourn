@@ -25,25 +25,8 @@ export async function POST(req: Request) {
         .where(eq(users.clerkId, userId))
 
     const competitionId = uuidv4()
-
     const userUuid = userRes[0].userId
-
-    // innerJoin users table to get all this:
-    /*
-    data: {
-        competitionId: string
-        name: string
-        teamSize: number
-        numTeams: number
-        creatorId: string
-        numSubs: number
-        creatorName: string
-        creatorProfilePic: string
-        clerkId: string
-        playerCount: number
-    }
-    */
-
+    
     let comp = await db
         .insert(competition)
         .values({

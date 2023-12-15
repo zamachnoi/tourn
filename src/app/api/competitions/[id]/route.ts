@@ -6,16 +6,7 @@ import { competition, users, competitionPlayer } from '@/schema'
 import { eq, and, sql } from 'drizzle-orm'
 import { auth } from '@clerk/nextjs'
 
-export async function GET(req: NextRequest) {
-    // Extracting the competition ID from the URL
-    const url = new URL(req.url)
-    const id = url.pathname.split('/').pop()
-
-    if (!id) {
-        return new NextResponse('Competition ID is required', { status: 400 })
-    }
-
-    // Fetch competition data by ID
+export async function getCompData(id: string) {
     const competitionData = await db
         .select({
             competitionId: competition.competitionId,
@@ -30,17 +21,34 @@ export async function GET(req: NextRequest) {
             playerCount: sql`(
           SELECT COUNT(*)::int
           FROM ${competitionPlayer}
-          WHERE ${competitionPlayer.competitionId} = ${competition.competitionId})`,
+          WHERE ${competitionPlayer.competitionId} = ${id})`,
         })
         .from(competition)
         .innerJoin(users, eq(users.userId, competition.creatorId))
         .where(eq(competition.competitionId, id))
-
     if (competitionData.length === 0) {
+        return null
+    }
+
+    return competitionData[0]
+}
+
+export async function GET(req: NextRequest) {
+    // Extracting the competition ID from the URL
+    const url = new URL(req.url)
+    const id = url.pathname.split('/').pop()
+
+    if (!id) {
+        return new NextResponse('Competition ID is required', { status: 400 })
+    }
+
+    const competitionData = await getCompData(id)
+
+    if (!competitionData) {
         return new NextResponse('Competition not found', { status: 404 })
     }
 
-    return new NextResponse(JSON.stringify(competitionData[0]), {
+    return new NextResponse(JSON.stringify(competitionData), {
         headers: {
             'content-type': 'application/json',
         },
