@@ -1,13 +1,22 @@
 'use client'
 import React, { useState, useEffect } from 'react'
-import { getCompetitions } from '@/app/competitions/page'
-import { Competition, CompetitionProps } from './CompetitionCard'
+import { CompetitionCard, CompetitionProps } from './CompetitionCard'
 import CompetitionCardPlaceHolder from './CompetitionCardPlaceHolder'
 
 export interface CompetitionsListProps {
     competitions: CompetitionProps['data'][]
     userCompetitions: string[]
     onCompetitionDeleted: (competitionId: string) => void
+}
+
+async function getCompetitions() {
+    console.log('called fetch')
+    const res = await fetch('/api/competitions', {
+        cache: 'no-store',
+    })
+
+    const competitions = await res.json()
+    return competitions
 }
 export interface CompetitionData {
     competitions: CompetitionProps['data'][]
@@ -57,7 +66,7 @@ export function CompetitionList(props: CompetitionsListProps) {
                       <CompetitionCardPlaceHolder key={index} />
                   ))
                 : competitions.map((competition) => (
-                      <Competition
+                      <CompetitionCard
                           key={competition.competitionId}
                           data={competition}
                           userInComp={userJoinedCompetitions.includes(

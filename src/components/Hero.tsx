@@ -1,6 +1,6 @@
 import { auth } from '@clerk/nextjs'
 
-export default function () {
+export default function Hero() {
     return (
         <section className="flex h-[calc(100vh-74px)] flex-col overflow-auto bg-gradient-to-t from-slate-950 to-slate-900">
             <div className="flex max-h-full flex-row justify-around">

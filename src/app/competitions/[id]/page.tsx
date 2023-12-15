@@ -1,5 +1,4 @@
 import { CompetitionProps } from '@/components/CompetitionCard'
-import { getCompData } from '@/app/api/competitions/[id]/route'
 import CompetitionView from '@/components/CompetitionView'
 
 export default async function Page({ params }: { params: { id: string } }) {
@@ -8,7 +7,7 @@ export default async function Page({ params }: { params: { id: string } }) {
         return <div>No competition ID found.</div>
     }
 
-    const competitionData = (await getCompData(id)) as CompetitionProps['data']
+    const competitionData = ''
 
     if (!competitionData) {
         return <div>No competition data found.</div>

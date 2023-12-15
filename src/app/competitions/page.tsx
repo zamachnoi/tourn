@@ -4,7 +4,7 @@ import { CompetitionList, CompetitionData } from '@/components/CompetitionList'
 import CreateCompetition from '@/components/CreateCompetition'
 import { useState, useEffect } from 'react'
 
-export async function getCompetitions() {
+async function getCompetitions() {
     console.log('called fetch')
     const res = await fetch('/api/competitions', {
         cache: 'no-store',

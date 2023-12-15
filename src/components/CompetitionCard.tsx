@@ -31,7 +31,7 @@ export interface CompetitionProps {
     // onCompetitionDeleted: (competitionId: string) => void
 }
 
-export function Competition(props: CompetitionProps) {
+export function CompetitionCard(props: CompetitionProps) {
     const {
         data,
         // onCompetitionDeleted,
