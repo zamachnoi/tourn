@@ -1,9 +1,10 @@
 'use client'
 import React, { useState } from 'react'
 import Modal from '@/components/Modal'
+import { CompetitionProps } from './Competition'
 
 interface CreateCompetitionProps {
-    onCompetitionCreated: () => void
+    onCompetitionCreated: (newCompetition: CompetitionProps['data']) => void
 }
 
 const CreateCompetition: React.FC<CreateCompetitionProps> = ({

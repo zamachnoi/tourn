@@ -3,7 +3,7 @@ import { auth } from '@clerk/nextjs'
 export default function () {
     return (
         <section className="flex h-[calc(100vh-74px)] flex-col overflow-auto bg-gradient-to-t from-slate-950 to-slate-900">
-            <div className="flex max-h-full flex-row gap-24">
+            <div className="flex max-h-full flex-row justify-around">
                 <div className="ml-20 mt-16 flex w-max flex-col justify-center pl-12">
                     <div className="flex flex-col text-6xl font-bold">
                         <h3 className="">Put your game nights</h3>

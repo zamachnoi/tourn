@@ -14,18 +14,37 @@ export async function POST(req: Request) {
         return new NextResponse('Unauthorized', { status: 401 })
     }
 
-    const result = await db
+    const userRes = await db
         .select({
             userId: users.userId,
+            clerkId: users.clerkId,
+            creatorName: users.name,
+            creatorProfilePic: users.profilePic,
         })
         .from(users)
         .where(eq(users.clerkId, userId))
 
     const competitionId = uuidv4()
 
-    const userUuid = result[0].userId
+    const userUuid = userRes[0].userId
 
-    const comp = await db
+    // innerJoin users table to get all this:
+    /*
+    data: {
+        competitionId: string
+        name: string
+        teamSize: number
+        numTeams: number
+        creatorId: string
+        numSubs: number
+        creatorName: string
+        creatorProfilePic: string
+        clerkId: string
+        playerCount: number
+    }
+    */
+
+    let comp = await db
         .insert(competition)
         .values({
             competitionId: competitionId,
@@ -38,7 +57,17 @@ export async function POST(req: Request) {
         .returning()
         .execute()
 
-    return new NextResponse(JSON.stringify(comp), {
+    const userCopy = { ...userRes[0], playerCount: 0 }
+
+    // Create a deep copy of comp[0]
+    let res = JSON.parse(JSON.stringify(comp[0]))
+
+    // Merge userCopy into res
+    for (const [key, value] of Object.entries(userCopy)) {
+        res[key] = value
+    }
+
+    return new NextResponse(JSON.stringify(res), {
         headers: {
             'content-type': 'application/json',
         },

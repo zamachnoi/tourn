@@ -28,16 +28,18 @@ export interface CompetitionProps {
         playerCount: number
     }
     userInComp: boolean
-    onCompetitionDeleted: () => void
+    onCompetitionDeleted: (competitionId: string) => void
 }
 
 export function Comp(props: CompetitionProps) {
-    const { data } = props
-    const [userInCompBool, setUserInCompBool] = useState(props.userInComp)
+    const { data, onCompetitionDeleted, userInComp } = props
+    const [userInCompBool, setUserInCompBool] = useState(userInComp)
     const [competitionPlayerCount, setCompetitionPlayerCount] = useState(
         data.playerCount
     )
     const [isLoading, setIsLoading] = useState(false)
+    const [isDeleted, setIsDeleted] = useState(false) // New state to track if the competition is deleted
+    const [isExiting, setIsExiting] = useState(false) // New state to handle exit transition
 
     const clerkUser = useUser().user
 
@@ -53,17 +55,26 @@ export function Comp(props: CompetitionProps) {
     const handleAction = async () => {
         setIsLoading(true)
         if (isCreator) {
-            const response = await fetch(
-                `/api/competitions/${data.competitionId}`,
-                {
-                    method: 'DELETE',
+            setIsExiting(true) // Set the competition as exiting
+
+            setTimeout(async () => {
+                try {
+                    const response = await fetch(
+                        `/api/competitions/${data.competitionId}`,
+                        {
+                            method: 'DELETE',
+                        }
+                    )
+                    if (response.ok) {
+                        setIsDeleted(true)
+                        onCompetitionDeleted(data.competitionId)
+                    } else {
+                        console.error('Error deleting competition')
+                    }
+                } catch (error) {
+                    console.error('Error deleting competition', error)
                 }
-            )
-            if (response.ok) {
-                props.onCompetitionDeleted()
-            } else {
-                console.error('Error deleting competition')
-            }
+            }, 300) // Timeout duration should match the CSS transition duration
         } else if (!userInCompBool) {
             const response = await fetch(
                 `/api/competitions/${data.competitionId}/join`,
@@ -99,15 +110,24 @@ export function Comp(props: CompetitionProps) {
         }
         setIsLoading(false)
     }
+    if (isDeleted) {
+        // Render nothing or a confirmation message
+        return null
+    }
+
+    const cardClasses = `m-4 rounded-lg bg-gray-800 p-6 shadow-lg transition-all duration-300 ${
+        isExiting ? 'opacity-0 scale-95' : 'opacity-100 scale-100'
+    }`
+
     return (
-        <Card className="m-4 rounded-lg bg-gray-800 p-6 shadow-lg">
+        <Card className={cardClasses}>
             <CardHeader className="flex items-center justify-between gap-4">
                 <div className="flex items-center gap-4">
                     <Avatar className="h-12 w-12">
                         <AvatarImage
                             alt="Creator Profile"
                             className="rounded-full"
-                            src={props.data.creatorProfilePic}
+                            src={data.creatorProfilePic}
                         />
                         <AvatarFallback>CP</AvatarFallback>
                     </Avatar>

@@ -1,9 +1,11 @@
 'use client'
+import { CompetitionProps } from '@/components/Competition'
 import { CompetitionList, CompetitionData } from '@/components/CompetitionList'
 import CreateCompetition from '@/components/CreateCompetition'
 import { useState, useEffect } from 'react'
 
 export async function getCompetitions() {
+    console.log('called fetch')
     const res = await fetch('/api/competitions', {
         cache: 'no-store',
     })
@@ -13,7 +15,9 @@ export async function getCompetitions() {
 }
 
 export default function Page() {
-    const [userCompetitions, setUserCompetitions] = useState<string[]>([])
+    const [userJoinedCompetitions, setUserJoinedCompetitions] = useState<
+        string[]
+    >([])
     const [competitions, setCompetitions] = useState<CompetitionData>({
         competitions: [],
         pagination: {
@@ -30,20 +34,58 @@ export default function Page() {
         const userComps = fetchedCompetitions.userCompetitions.map(
             (competition: any) => competition.competitionId
         )
-        setUserCompetitions(userComps)
+        setUserJoinedCompetitions(userComps)
     }
 
     useEffect(() => {
         refreshCompetitionList()
     }, [])
 
+    const removeCompetition = (competitionId: string) => {
+        setCompetitions((prevState) => ({
+            ...prevState,
+            competitions: prevState.competitions.filter(
+                (comp) => comp.competitionId !== competitionId
+            ),
+            pagination: {
+                ...prevState.pagination,
+                totalRecords: prevState.pagination.totalRecords - 1,
+            },
+        }))
+    }
+
+    const onCompetitionCreated = (newCompetition: CompetitionProps['data']) => {
+        setCompetitions((prevState) => {
+            // Check if the new competition is already in the state
+            const isAlreadyPresent = prevState.competitions.some(
+                (comp) => comp.competitionId === newCompetition.competitionId
+            )
+            if (isAlreadyPresent) {
+                return prevState // Return the current state if it's already present
+            }
+            return {
+                ...prevState,
+                competitions: [...prevState.competitions, newCompetition],
+                pagination: {
+                    ...prevState.pagination,
+                    totalRecords: prevState.pagination.totalRecords + 1,
+                },
+            }
+        })
+    }
+
     return (
         <div className="flex h-[calc(100vh-74px)] flex-col items-center overflow-auto bg-gradient-to-t from-slate-950 to-slate-900">
+            <div className="flex w-full flex-row justify-end">
+                <CreateCompetition
+                    onCompetitionCreated={onCompetitionCreated}
+                />
+            </div>
             <CompetitionList
                 competitions={competitions.competitions}
-                userCompetitions={userCompetitions}
+                userCompetitions={userJoinedCompetitions}
+                onCompetitionDeleted={removeCompetition}
             />
-            <CreateCompetition onCompetitionCreated={refreshCompetitionList} />
         </div>
     )
 }

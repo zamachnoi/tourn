@@ -1,11 +1,12 @@
 import { Fragment, useRef, useState } from 'react'
 import { Dialog, Transition } from '@headlessui/react'
 import { XMarkIcon } from '@heroicons/react/24/solid'
+import { CompetitionProps } from './Competition'
 
 interface ModalProps {
     isOpen: boolean
     onModalClose: () => void
-    onCompetitionCreated: () => void // New prop for callback
+    onCompetitionCreated: (newCompetition: CompetitionProps['data']) => void
 }
 
 // TODO: VALIDATION AND REMOVE CLICKY THING
@@ -23,36 +24,42 @@ const Modal: React.FC<ModalProps> = ({
     const [numSubs, setNumSubs] = useState(0)
     const [creating, setCreating] = useState(false)
 
-    const handleCreateCompetition = (
+    const handleCreateCompetition = async (
         name: string,
         teamSize: number,
         numTeams: number,
         numSubs: number,
         closeModal: () => void
     ) => {
-        fetch('/api/competitions', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-                name: name,
-                teamSize: teamSize,
-                numTeams: numTeams,
-                numSubs: numSubs,
-            }),
-        })
-            .then((response) => {
-                if (response.ok) {
-                    closeModal() // Close the modal on successful API response
-                    onCompetitionCreated()
-                }
+        try {
+            const response = await fetch('/api/competitions', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    name: name,
+                    teamSize: teamSize,
+                    numTeams: numTeams,
+                    numSubs: numSubs,
+                }),
+            })
+
+            if (response.ok) {
+                const newCompetition = await response.json()
+                onCompetitionCreated(newCompetition)
+                closeModal()
+            } else {
                 // Handle non-successful responses
-            })
-            .catch((error) => {
-                console.error('Error creating competition:', error)
-                // Handle error
-            })
+                console.error(
+                    'Failed to create competition:',
+                    await response.text()
+                )
+            }
+        } catch (error) {
+            console.error('Error creating competition:', error)
+            // Handle error
+        }
     }
 
     return (

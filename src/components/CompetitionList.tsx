@@ -2,10 +2,12 @@
 import React, { useState, useEffect } from 'react'
 import { getCompetitions } from '@/app/competitions/page'
 import { Comp, CompetitionProps } from './Competition'
+import { ConsoleLogWriter } from 'drizzle-orm'
 
 export interface CompetitionsListProps {
     competitions: CompetitionProps['data'][]
     userCompetitions: string[]
+    onCompetitionDeleted: (competitionId: string) => void
 }
 export interface CompetitionData {
     competitions: CompetitionProps['data'][]
@@ -19,14 +21,17 @@ export interface CompetitionData {
 
 export function CompetitionList(props: CompetitionsListProps) {
     // Initialize state with competitions from props
-    const [competitions, setCompetitions] = useState(props.competitions)
-    const [userCompetitions, setUserCompetitions] = useState(
+
+    const [competitions, setCompetitions] = useState<
+        CompetitionProps['data'][]
+    >(props.competitions)
+    const [userJoinedCompetitions, setUserJoinedCompetitions] = useState(
         props.userCompetitions
     )
 
     useEffect(() => {
         setCompetitions(props.competitions)
-        setUserCompetitions(props.userCompetitions)
+        setUserJoinedCompetitions(props.userCompetitions)
     }, [props.competitions])
 
     // Function to refresh the list of competitions
@@ -39,19 +44,30 @@ export function CompetitionList(props: CompetitionsListProps) {
         const userComps = updatedCompetitions.competitions.map(
             (competition: any) => competition.competitionId
         )
-        setUserCompetitions(userComps)
+        setUserJoinedCompetitions(userComps)
     }
 
+    const removeCompetition = (competitionId: string) => {
+        setCompetitions((prevState) => {
+            // Filter out the competition with the given ID
+            const updatedCompetitions = prevState.filter(
+                (comp) => comp.competitionId !== competitionId
+            )
+
+            return updatedCompetitions // Return the updated array
+        })
+        props.onCompetitionDeleted(competitionId)
+    }
     return (
-        <div className="flex w-full flex-row justify-center gap-2">
+        <div className="grid grid-flow-row-dense grid-cols-3 justify-items-start gap-2 transition-all ease-linear">
             {competitions.map((competition) => (
                 <Comp
                     key={competition.competitionId}
                     data={competition}
-                    userInComp={userCompetitions.includes(
+                    userInComp={userJoinedCompetitions.includes(
                         competition.competitionId
                     )}
-                    onCompetitionDeleted={refreshCompetitions}
+                    onCompetitionDeleted={removeCompetition}
                 />
             ))}
         </div>
