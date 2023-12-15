@@ -1,5 +1,5 @@
 'use client'
-import { CompetitionProps } from '@/components/CompetitionInList'
+import { CompetitionProps } from '@/components/CompetitionCard'
 import { CompetitionList, CompetitionData } from '@/components/CompetitionList'
 import CreateCompetition from '@/components/CreateCompetition'
 import { useState, useEffect } from 'react'

@@ -26,7 +26,7 @@ export async function POST(req: Request) {
 
     const competitionId = uuidv4()
     const userUuid = userRes[0].userId
-    
+
     let comp = await db
         .insert(competition)
         .values({

@@ -1,4 +1,4 @@
-import { CompetitionProps } from '@/components/CompetitionInList'
+import { CompetitionProps } from '@/components/CompetitionCard'
 
 export default function CompetitionView(props: CompetitionProps) {
     const { data } = props

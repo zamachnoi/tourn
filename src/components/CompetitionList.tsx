@@ -1,7 +1,8 @@
 'use client'
 import React, { useState, useEffect } from 'react'
 import { getCompetitions } from '@/app/competitions/page'
-import { Competition, CompetitionProps } from './CompetitionInList'
+import { Competition, CompetitionProps } from './CompetitionCard'
+import CompetitionCardPlaceHolder from './CompetitionCardPlaceHolder'
 
 export interface CompetitionsListProps {
     competitions: CompetitionProps['data'][]
@@ -27,9 +28,12 @@ export function CompetitionList(props: CompetitionsListProps) {
     const [userJoinedCompetitions, setUserJoinedCompetitions] = useState(
         props.userCompetitions
     )
+    const [isLoading, setIsLoading] = useState(true)
 
     useEffect(() => {
         setCompetitions(props.competitions)
+        if (props.competitions.length > 0) setIsLoading(false)
+
         setUserJoinedCompetitions(props.userCompetitions)
     }, [props.competitions])
 
@@ -46,29 +50,22 @@ export function CompetitionList(props: CompetitionsListProps) {
         setUserJoinedCompetitions(userComps)
     }
 
-    const removeCompetition = (competitionId: string) => {
-        setCompetitions((prevState) => {
-            // Filter out the competition with the given ID
-            const updatedCompetitions = prevState.filter(
-                (comp) => comp.competitionId !== competitionId
-            )
-
-            return updatedCompetitions // Return the updated array
-        })
-        props.onCompetitionDeleted(competitionId)
-    }
     return (
         <div className="grid grid-flow-row-dense grid-cols-3 justify-items-start gap-2 transition-all ease-linear">
-            {competitions.map((competition) => (
-                <Competition
-                    key={competition.competitionId}
-                    data={competition}
-                    userInComp={userJoinedCompetitions.includes(
-                        competition.competitionId
-                    )}
-                    // onCompetitionDeleted={() => {}}
-                />
-            ))}
+            {isLoading
+                ? Array.from({ length: 9 }, (_, index) => (
+                      <CompetitionCardPlaceHolder key={index} />
+                  ))
+                : competitions.map((competition) => (
+                      <Competition
+                          key={competition.competitionId}
+                          data={competition}
+                          userInComp={userJoinedCompetitions.includes(
+                              competition.competitionId
+                          )}
+                          // onCompetitionDeleted={() => {}}
+                      />
+                  ))}
         </div>
     )
 }

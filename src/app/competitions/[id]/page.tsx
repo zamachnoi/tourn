@@ -1,4 +1,4 @@
-import { CompetitionProps } from '@/components/CompetitionInList'
+import { CompetitionProps } from '@/components/CompetitionCard'
 import { getCompData } from '@/app/api/competitions/[id]/route'
 import CompetitionView from '@/components/CompetitionView'
 

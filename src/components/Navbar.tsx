@@ -1,11 +1,12 @@
 import { UserButton } from '@clerk/nextjs'
 import { auth } from '@clerk/nextjs'
+import Image from 'next/image'
 
 export default function Navbar() {
     return (
         <nav className="sticky top-0 z-[20] mx-auto flex w-full items-center justify-between bg-slate-950 px-8 py-2">
             <a href="/" className="flex flex-row items-center gap-2">
-                <img src="tourn.png" className="h-12" />
+                <Image src="/tourn.png" height={48} width={48} alt="tourn" />
                 <h1 className="text-2xl font-semibold text-white">tourn</h1>
             </a>
             {auth().userId ? (
