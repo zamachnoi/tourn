@@ -6,18 +6,8 @@ import CompetitionCardPlaceHolder from './CompetitionCardPlaceHolder'
 export interface CompetitionsListProps {
     competitions: CompetitionProps['data'][]
     userCompetitions: string[]
-    onCompetitionDeleted: (competitionId: string) => void
 }
 
-async function getCompetitions() {
-    console.log('called fetch')
-    const res = await fetch('/api/competitions', {
-        cache: 'no-store',
-    })
-
-    const competitions = await res.json()
-    return competitions
-}
 export interface CompetitionData {
     competitions: CompetitionProps['data'][]
     pagination: {
@@ -46,19 +36,6 @@ export function CompetitionList(props: CompetitionsListProps) {
         setUserJoinedCompetitions(props.userCompetitions)
     }, [props.competitions])
 
-    // Function to refresh the list of competitions
-    const refreshCompetitions = async () => {
-        // Fetch new competitions data
-        const updatedCompetitions = await getCompetitions()
-        setCompetitions(updatedCompetitions.competitions)
-
-        // Update user competitions
-        const userComps = updatedCompetitions.competitions.map(
-            (competition: any) => competition.competitionId
-        )
-        setUserJoinedCompetitions(userComps)
-    }
-
     return (
         <div className="grid grid-flow-row-dense grid-cols-3 justify-items-start gap-2 transition-all ease-linear">
             {isLoading
@@ -72,7 +49,6 @@ export function CompetitionList(props: CompetitionsListProps) {
                           userInComp={userJoinedCompetitions.includes(
                               competition.competitionId
                           )}
-                          // onCompetitionDeleted={() => {}}
                       />
                   ))}
         </div>

@@ -3,6 +3,7 @@ import './globals.css'
 import type { Metadata } from 'next'
 import { Inter, Poppins } from 'next/font/google'
 import { ClerkProvider } from '@clerk/nextjs'
+import Providers from './providers'
 
 const inter = Inter({ subsets: ['latin'] })
 
@@ -26,7 +27,7 @@ export default function RootLayout({
             <html lang="en">
                 <body className={poppins.className}>
                     <Navbar />
-                    {children}
+                    <Providers>{children}</Providers>
                 </body>
             </html>
         </ClerkProvider>

@@ -3,8 +3,9 @@ import { CompetitionProps } from '@/components/CompetitionCard'
 import { CompetitionList, CompetitionData } from '@/components/CompetitionList'
 import CreateCompetition from '@/components/CreateCompetition'
 import { useState, useEffect } from 'react'
+import { useQuery } from 'react-query'
 
-async function getCompetitions() {
+export async function getCompetitions() {
     console.log('called fetch')
     const res = await fetch('/api/competitions', {
         cache: 'no-store',
@@ -28,18 +29,15 @@ export default function Page() {
         },
     })
 
-    const refreshCompetitionList = async () => {
-        const fetchedCompetitions = await getCompetitions()
-        setCompetitions(fetchedCompetitions)
-        const userComps = fetchedCompetitions.userCompetitions.map(
-            (competition: any) => competition.competitionId
-        )
-        setUserJoinedCompetitions(userComps)
-    }
-
-    useEffect(() => {
-        refreshCompetitionList()
-    }, [])
+    const { isLoading } = useQuery('competitions', getCompetitions, {
+        onSuccess: (data) => {
+            setCompetitions(data)
+            const userComps = data.userCompetitions.map(
+                (competition: any) => competition.competitionId
+            )
+            setUserJoinedCompetitions(userComps)
+        },
+    })
 
     const removeCompetition = (competitionId: string) => {
         setCompetitions((prevState) => ({
@@ -75,17 +73,24 @@ export default function Page() {
     }
 
     return (
-        <div className="flex h-[calc(100vh-74px)] flex-col items-center overflow-auto bg-gradient-to-t from-slate-950 to-slate-900">
-            <div className="flex w-full flex-row justify-end">
-                <CreateCompetition
-                    onCompetitionCreated={onCompetitionCreated}
+        <div className="flex h-[calc(100vh-74px)] flex-col overflow-auto bg-gradient-to-t from-slate-950 to-slate-900">
+            {!isLoading && (
+                <div className="sticky top-0 z-10 flex h-0 w-full justify-end">
+                    <div className="mr-10">
+                        <CreateCompetition
+                            onCompetitionCreated={onCompetitionCreated}
+                        />
+                    </div>
+                </div>
+            )}
+
+            <div className="top-0 flex w-full justify-center">
+                <CompetitionList
+                    competitions={competitions.competitions}
+                    userCompetitions={userJoinedCompetitions}
+                    onCompetitionDeleted={removeCompetition}
                 />
             </div>
-            <CompetitionList
-                competitions={competitions.competitions}
-                userCompetitions={userJoinedCompetitions}
-                onCompetitionDeleted={removeCompetition}
-            />
         </div>
     )
 }

@@ -20,7 +20,7 @@ const CreateCompetition: React.FC<CreateCompetitionProps> = ({
         setIsModalOpen(false)
     }
     return (
-        <div className="z-0">
+        <div className="sticky">
             <a
                 href="#"
                 onClick={(e) => {

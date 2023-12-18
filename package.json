@@ -51,6 +51,7 @@
     "react-dom": "latest",
     "react-fontawesome": "^1.7.1",
     "react-loading-spinner": "^1.0.12",
+    "react-query": "^3.39.3",
     "react-spinners": "^0.13.8",
     "svix": "^1.13.0",
     "tailwind-merge": "^2.0.0",
