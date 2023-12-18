@@ -5,7 +5,7 @@ import CreateCompetition from '@/components/CreateCompetition'
 import { useState, useEffect } from 'react'
 import { useQuery } from 'react-query'
 
-export async function getCompetitions() {
+async function getCompetitions() {
     console.log('called fetch')
     const res = await fetch('/api/competitions', {
         cache: 'no-store',
@@ -39,18 +39,18 @@ export default function Page() {
         },
     })
 
-    const removeCompetition = (competitionId: string) => {
-        setCompetitions((prevState) => ({
-            ...prevState,
-            competitions: prevState.competitions.filter(
-                (comp) => comp.competitionId !== competitionId
-            ),
-            pagination: {
-                ...prevState.pagination,
-                totalRecords: prevState.pagination.totalRecords - 1,
-            },
-        }))
-    }
+    // const removeCompetition = (competitionId: string) => {
+    //     setCompetitions((prevState) => ({
+    //         ...prevState,
+    //         competitions: prevState.competitions.filter(
+    //             (comp) => comp.competitionId !== competitionId
+    //         ),
+    //         pagination: {
+    //             ...prevState.pagination,
+    //             totalRecords: prevState.pagination.totalRecords - 1,
+    //         },
+    //     }))
+    // }
 
     const onCompetitionCreated = (newCompetition: CompetitionProps['data']) => {
         setCompetitions((prevState) => {
@@ -88,7 +88,6 @@ export default function Page() {
                 <CompetitionList
                     competitions={competitions.competitions}
                     userCompetitions={userJoinedCompetitions}
-                    onCompetitionDeleted={removeCompetition}
                 />
             </div>
         </div>
