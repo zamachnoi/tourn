@@ -1,15 +1,18 @@
-import { Fragment, useRef, useState } from 'react'
+import { Fragment, useRef } from 'react'
 import { Dialog, Transition } from '@headlessui/react'
 import { XMarkIcon } from '@heroicons/react/24/solid'
 import { CompetitionProps } from './CompetitionCard'
+import { Formik, Form, Field, ErrorMessage } from 'formik'
+import * as Yup from 'yup'
+
+type CompetitionValues = CompetitionProps['data']
 
 interface ModalProps {
     isOpen: boolean
     onModalClose: () => void
-    onCompetitionCreated: (newCompetition: CompetitionProps['data']) => void
+    onCompetitionCreated: (newCompetition: CompetitionValues) => void
 }
 
-// TODO: VALIDATION AND REMOVE CLICKY THING
 const Modal: React.FC<ModalProps> = ({
     isOpen,
     onModalClose,
@@ -17,40 +20,46 @@ const Modal: React.FC<ModalProps> = ({
 }) => {
     const cancelButtonRef = useRef(null)
 
-    // State for input fields
-    const [name, setName] = useState('')
-    const [teamSize, setTeamSize] = useState(0)
-    const [numTeams, setNumTeams] = useState(0)
-    const [numSubs, setNumSubs] = useState(0)
-    const [creating, setCreating] = useState(false)
+    const initialValues: CompetitionValues = {
+        competitionId: '',
+        name: '',
+        teamSize: 0,
+        numTeams: 0,
+        creatorId: '',
+        numSubs: 0,
+        creatorName: '',
+        creatorProfilePic: '',
+        clerkId: '',
+        playerCount: 0,
+    }
 
-    const handleCreateCompetition = async (
-        name: string,
-        teamSize: number,
-        numTeams: number,
-        numSubs: number,
-        closeModal: () => void
-    ) => {
+    const validationSchema = Yup.object({
+        name: Yup.string()
+            .required('Competition name is required')
+            .min(1, 'Competition name must be at least 1 character')
+            .max(32, 'Competition name cannot exceed 32 characters'),
+        teamSize: Yup.number()
+            .required('Team size is required')
+            .min(1, 'Team size must be greater than 0'),
+        numTeams: Yup.number().min(0, 'Number of teams cannot be negative'),
+        numSubs: Yup.number().min(0, 'Number of subs cannot be negative'),
+    })
+
+    const handleSubmit = async (values: CompetitionValues) => {
         try {
             const response = await fetch('/api/competitions', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
                 },
-                body: JSON.stringify({
-                    name: name,
-                    teamSize: teamSize,
-                    numTeams: numTeams,
-                    numSubs: numSubs,
-                }),
+                body: JSON.stringify(values),
             })
 
             if (response.ok) {
                 const newCompetition = await response.json()
                 onCompetitionCreated(newCompetition)
-                closeModal()
+                onModalClose()
             } else {
-                // Handle non-successful responses
                 console.error(
                     'Failed to create competition:',
                     await response.text()
@@ -58,7 +67,6 @@ const Modal: React.FC<ModalProps> = ({
             }
         } catch (error) {
             console.error('Error creating competition:', error)
-            // Handle error
         }
     }
 
@@ -105,105 +113,109 @@ const Modal: React.FC<ModalProps> = ({
                                 Create Competition
                             </Dialog.Title>
 
-                            {/* Input fields */}
-                            <div className="mt-4">
-                                <label
-                                    htmlFor="name"
-                                    className="mb-1 block text-sm font-medium text-gray-900 dark:text-white"
-                                >
-                                    Competition Name
-                                </label>
-                                <input
-                                    type="text"
-                                    value={name}
-                                    onChange={(e) => setName(e.target.value)}
-                                    placeholder="Swag beasts"
-                                    className="mb-2 block w-full rounded-lg border border-gray-300 bg-gray-50 p-2 text-gray-900 outline-none outline-1 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400 sm:text-xs"
-                                />
-                                <label
-                                    htmlFor="team-size"
-                                    className="mb-1 block text-sm font-medium text-gray-900 dark:text-white"
-                                >
-                                    Team Size
-                                </label>
-                                <input
-                                    type="number"
-                                    value={teamSize}
-                                    onChange={(e) =>
-                                        setTeamSize(
-                                            e.target.value === ''
-                                                ? 0
-                                                : parseInt(e.target.value)
-                                        )
-                                    }
-                                    placeholder="5"
-                                    className="mb-2 block w-full rounded-lg border border-gray-300 bg-gray-50 p-2 text-gray-900 outline-none outline-1 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400 sm:text-xs"
-                                />
-                                <label
-                                    htmlFor="team-size"
-                                    className="mb-1 block text-sm font-medium text-gray-900 dark:text-white"
-                                >
-                                    Number of Teams{' '}
-                                    <span className="text-xs font-light text-gray-400">
-                                        (leave blank to fit everyone)
-                                    </span>
-                                </label>
-
-                                <input
-                                    type="number"
-                                    value={numTeams}
-                                    onChange={(e) =>
-                                        setNumTeams(
-                                            e.target.value === ''
-                                                ? 0
-                                                : parseInt(e.target.value)
-                                        )
-                                    }
-                                    placeholder="12"
-                                    className="mb-2 block w-full rounded-lg border border-gray-300 bg-gray-50 p-2 text-gray-900 outline-none outline-1 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400 sm:text-xs"
-                                />
-                                <label
-                                    htmlFor="num-subs"
-                                    className="mb-1 block text-sm font-medium text-gray-900 outline-none dark:text-white"
-                                >
-                                    Number of Subs
-                                </label>
-                                <input
-                                    type="number"
-                                    value={numSubs}
-                                    onChange={(e) =>
-                                        setNumSubs(
-                                            e.target.value === ''
-                                                ? 0
-                                                : parseInt(e.target.value)
-                                        )
-                                    }
-                                    placeholder="1"
-                                    className="mb-2 block w-full rounded-lg border border-gray-300 bg-gray-50 p-2 text-gray-900 outline-none outline-1 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400 sm:text-xs"
-                                />
-                                <div className="mt-4 flex justify-end">
-                                    {!creating ? (
-                                        <button
-                                            type="button"
-                                            className="inline-flex justify-center rounded-md border border-transparent bg-green-500 px-4 py-2 text-sm font-medium text-white hover:bg-green-600 focus:outline-none"
-                                            onClick={() => {
-                                                setCreating(true)
-                                                handleCreateCompetition(
-                                                    name,
-                                                    teamSize,
-                                                    numTeams,
-                                                    numSubs,
-                                                    onModalClose
-                                                )
-                                            }}
-                                        >
-                                            Create
-                                        </button>
-                                    ) : (
-                                        <div className="h-6 w-6 animate-spin rounded-full border-b-2 border-white"></div>
-                                    )}
-                                </div>
-                            </div>
+                            <Formik
+                                initialValues={initialValues}
+                                validationSchema={validationSchema}
+                                onSubmit={handleSubmit}
+                            >
+                                <Form>
+                                    {/* Input fields */}
+                                    <div className="mt-4">
+                                        <div className="mb-2">
+                                            <label
+                                                htmlFor="name"
+                                                className="block text-sm font-medium text-gray-900 dark:text-white"
+                                            >
+                                                Competition Name1
+                                            </label>
+                                            <Field
+                                                type="text"
+                                                id="name"
+                                                name="name"
+                                                placeholder="Swag1"
+                                                className="block w-full rounded-lg border border-gray-300 bg-gray-50 p-2 text-gray-900 outline-none outline-1 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400 sm:text-xs"
+                                            />
+                                            <ErrorMessage
+                                                name="name"
+                                                component="p"
+                                                className="mt-1 text-red-500"
+                                            />
+                                        </div>
+                                        <div className="mb-2">
+                                            <label
+                                                htmlFor="teamSize"
+                                                className="block text-sm font-medium text-gray-900 dark:text-white"
+                                            >
+                                                Team Size
+                                            </label>
+                                            <Field
+                                                type="number"
+                                                id="teamSize"
+                                                name="teamSize"
+                                                placeholder="5"
+                                                className="block w-full rounded-lg border border-gray-300 bg-gray-50 p-2 text-gray-900 outline-none outline-1 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400 sm:text-xs"
+                                            />
+                                            <ErrorMessage
+                                                name="teamSize"
+                                                component="p"
+                                                className="mt-1 text-red-500"
+                                            />
+                                        </div>
+                                        <div className="mb-2">
+                                            <label
+                                                htmlFor="numTeams"
+                                                className="block text-sm font-medium text-gray-900 dark:text-white"
+                                            >
+                                                Number of Teams{' '}
+                                                <span className="text-xs font-light text-gray-400">
+                                                    (leave blank to fit
+                                                    everyone)
+                                                </span>
+                                            </label>
+                                            <Field
+                                                type="number"
+                                                id="numTeams"
+                                                name="numTeams"
+                                                placeholder="12"
+                                                className="block w-full rounded-lg border border-gray-300 bg-gray-50 p-2 text-gray-900 outline-none outline-1 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400 sm:text-xs"
+                                            />
+                                            <ErrorMessage
+                                                name="numTeams"
+                                                component="p"
+                                                className="mt-1 text-red-500"
+                                            />
+                                        </div>
+                                        <div className="mb-2">
+                                            <label
+                                                htmlFor="numSubs"
+                                                className="block text-sm font-medium text-gray-900 outline-none dark:text-white"
+                                            >
+                                                Number of Subs
+                                            </label>
+                                            <Field
+                                                type="number"
+                                                id="numSubs"
+                                                name="numSubs"
+                                                placeholder="1"
+                                                className="block w-full rounded-lg border border-gray-300 bg-gray-50 p-2 text-gray-900 outline-none outline-1 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400 sm:text-xs"
+                                            />
+                                            <ErrorMessage
+                                                name="numSubs"
+                                                component="p"
+                                                className="mt-1 text-red-500"
+                                            />
+                                        </div>
+                                        <div className="mt-4 flex justify-end">
+                                            <button
+                                                type="submit"
+                                                className="inline-flex justify-center rounded-md border border-transparent bg-green-500 px-4 py-2 text-sm font-medium text-white hover:bg-green-600 focus:outline-none"
+                                            >
+                                                Create
+                                            </button>
+                                        </div>
+                                    </div>
+                                </Form>
+                            </Formik>
                         </div>
                     </Transition.Child>
                 </div>

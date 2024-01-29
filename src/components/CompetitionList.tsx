@@ -6,6 +6,7 @@ import CompetitionCardPlaceHolder from './CompetitionCardPlaceHolder'
 export interface CompetitionsListProps {
     competitions: CompetitionProps['data'][]
     userCompetitions: string[]
+    limit: string
 }
 
 export interface CompetitionData {
@@ -20,26 +21,31 @@ export interface CompetitionData {
 
 export function CompetitionList(props: CompetitionsListProps) {
     // Initialize state with competitions from props
-
-    const [competitions, setCompetitions] = useState<
-        CompetitionProps['data'][]
-    >(props.competitions)
+    const {
+        limit,
+        competitions: initialCompetitions,
+        userCompetitions: initialUserCompetitions,
+    } = props
+    const [competitions, setCompetitions] =
+        useState<CompetitionProps['data'][]>(initialCompetitions)
     const [userJoinedCompetitions, setUserJoinedCompetitions] = useState(
-        props.userCompetitions
+        initialUserCompetitions
     )
     const [isLoading, setIsLoading] = useState(true)
 
-    useEffect(() => {
-        setCompetitions(props.competitions)
-        if (props.competitions.length > 0) setIsLoading(false)
+    const customLimit = limit // Declare a new variable to store the value of props.limit
 
-        setUserJoinedCompetitions(props.userCompetitions)
-    }, [props.competitions])
+    useEffect(() => {
+        setCompetitions(initialCompetitions)
+        if (initialCompetitions.length > 0) setIsLoading(false)
+
+        setUserJoinedCompetitions(initialUserCompetitions)
+    }, [initialCompetitions])
 
     return (
         <div className="grid grid-flow-row-dense grid-cols-3 justify-items-start gap-2 transition-all ease-linear">
             {isLoading
-                ? Array.from({ length: 9 }, (_, index) => (
+                ? Array.from({ length: parseInt(customLimit) }, (_, index) => (
                       <CompetitionCardPlaceHolder key={index} />
                   ))
                 : competitions.map((competition) => (

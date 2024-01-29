@@ -28,15 +28,10 @@ export interface CompetitionProps {
         playerCount: number
     }
     userInComp: boolean
-    // onCompetitionDeleted: (competitionId: string) => void
 }
 
 export function CompetitionCard(props: CompetitionProps) {
-    const {
-        data,
-        // onCompetitionDeleted,
-        userInComp,
-    } = props
+    const { data, userInComp } = props
     const [userInCompBool, setUserInCompBool] = useState(userInComp)
     const [competitionPlayerCount, setCompetitionPlayerCount] = useState(
         data.playerCount
@@ -54,31 +49,25 @@ export function CompetitionCard(props: CompetitionProps) {
 
     const isCreator = data.clerkId === currUserClerkId
 
-    // TODO: Create spinner for deleting loading state
-
     const handleAction = async () => {
         setIsLoading(true)
         if (isCreator) {
-            setIsExiting(true) // Set the competition as exiting
-
-            setTimeout(async () => {
-                try {
-                    const response = await fetch(
-                        `/api/competitions/${data.competitionId}`,
-                        {
-                            method: 'DELETE',
-                        }
-                    )
-                    if (response.ok) {
-                        setIsDeleted(true)
-                        // onCompetitionDeleted(data.competitionId)
-                    } else {
-                        console.error('Error deleting competition')
+            setIsExiting(true)
+            try {
+                const response = await fetch(
+                    `/api/competitions/${data.competitionId}`,
+                    {
+                        method: 'DELETE',
                     }
-                } catch (error) {
-                    console.error('Error deleting competition', error)
+                )
+                if (response.ok) {
+                    setIsDeleted(true)
+                } else {
+                    console.error('Error deleting competition')
                 }
-            }, 300) // Timeout duration should match the CSS transition duration
+            } catch (error) {
+                console.error('Error deleting competition', error)
+            }
         } else if (!userInCompBool) {
             const response = await fetch(
                 `/api/competitions/${data.competitionId}/join`,
@@ -115,13 +104,20 @@ export function CompetitionCard(props: CompetitionProps) {
         setIsLoading(false)
     }
     if (isDeleted) {
-        // Render nothing or a confirmation message
         return null
     }
 
-    const cardClasses = `m-4 rounded-lg bg-gray-800 p-6 shadow-lg transition-all duration-300 ${
+    // TODO: FIX WIDTH OF CARD WHEN LENGTH GETS TOO LONG
+    const cardClasses = `m-4 w-full rounded-lg bg-gray-800 p-6 shadow-lg transition-all duration-300 ${
         isExiting ? 'opacity-0 scale-95' : 'opacity-100 scale-100'
     }`
+
+    const getCardTitleClasses = () => {
+        if (data.name.length > 20) {
+            return 'text-sm font-semibold text-white'
+        }
+        return 'text-lg font-semibold text-white'
+    }
 
     const routeToCompetition = () => {
         window.location.href = `/competitions/${data.competitionId}`
@@ -130,7 +126,10 @@ export function CompetitionCard(props: CompetitionProps) {
     return (
         <Card className={cardClasses}>
             <CardHeader className="flex items-center justify-between gap-4">
-                <div className="flex items-center gap-4">
+                <div className="flex flex-col items-center gap-4">
+                    <CardTitle className={getCardTitleClasses()}>
+                        {data.name}
+                    </CardTitle>
                     <Avatar className="h-12 w-12">
                         <AvatarImage
                             alt="Creator Profile"
@@ -139,9 +138,6 @@ export function CompetitionCard(props: CompetitionProps) {
                         />
                         <AvatarFallback>CP</AvatarFallback>
                     </Avatar>
-                    <CardTitle className="text-lg font-semibold text-white">
-                        {data.name}
-                    </CardTitle>
                 </div>
             </CardHeader>
             <CardContent className="mt-4 grid gap-4 text-gray-400">

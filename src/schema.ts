@@ -1,12 +1,13 @@
 import {
     pgTable,
-    foreignKey,
+    uniqueIndex,
     pgEnum,
     uuid,
-    uniqueIndex,
     varchar,
+    foreignKey,
     integer,
     timestamp,
+    primaryKey,
 } from 'drizzle-orm/pg-core'
 import { sql } from 'drizzle-orm'
 
@@ -37,23 +38,13 @@ export const codeChallengeMethod = pgEnum('code_challenge_method', [
 export const factorStatus = pgEnum('factor_status', ['unverified', 'verified'])
 export const factorType = pgEnum('factor_type', ['totp', 'webauthn'])
 
-export const competitionPlayer = pgTable('competition_player', {
-    userId: uuid('user_id')
-        .notNull()
-        .references(() => users.userId),
-    competitionId: uuid('competition_id')
-        .notNull()
-        .references(() => competition.competitionId),
-    teamId: uuid('team_id').references(() => team.teamId),
-})
-
 export const users = pgTable(
     'users',
     {
         userId: uuid('user_id').primaryKey().notNull(),
         name: varchar('name').notNull(),
         role: varchar('role'),
-        profilePic: varchar('profile_pic').notNull(),
+        profilePic: varchar('profile_pic'),
         clerkId: varchar('clerk_id').notNull(),
     },
     (table) => {
@@ -75,6 +66,10 @@ export const competition = pgTable('competition', {
         .references(() => users.userId),
     numSubs: integer('num_subs').notNull(),
     startDate: timestamp('start_date', { withTimezone: true, mode: 'string' }),
+    dateCreated: timestamp('date_created', {
+        withTimezone: true,
+        mode: 'string',
+    }),
 })
 
 export const team = pgTable('team', {
@@ -87,3 +82,31 @@ export const team = pgTable('team', {
         .notNull()
         .references(() => competition.competitionId),
 })
+
+export const competitionPlayer = pgTable(
+    'competition_player',
+    {
+        userId: uuid('user_id')
+            .notNull()
+            .references(() => users.userId, { onDelete: 'cascade' }),
+        competitionId: uuid('competition_id')
+            .notNull()
+            .references(() => competition.competitionId, {
+                onDelete: 'cascade',
+            })
+            .references(() => competition.competitionId, {
+                onDelete: 'cascade',
+            }),
+        teamId: uuid('team_id').references(() => team.teamId, {
+            onDelete: 'cascade',
+        }),
+    },
+    (table) => {
+        return {
+            pkCompetitionPlayer: primaryKey({
+                columns: [table.userId, table.competitionId],
+                name: 'pk_competition_player',
+            }),
+        }
+    }
+)

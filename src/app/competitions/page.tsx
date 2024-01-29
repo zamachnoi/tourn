@@ -4,12 +4,15 @@ import { CompetitionList, CompetitionData } from '@/components/CompetitionList'
 import CreateCompetition from '@/components/CreateCompetition'
 import { useState, useEffect } from 'react'
 import { useQuery } from 'react-query'
+import { useSearchParams } from 'next/navigation'
 
-async function getCompetitions() {
-    console.log('called fetch')
-    const res = await fetch('/api/competitions', {
-        cache: 'no-store',
-    })
+async function getCompetitions(pageParam: string, limitParam: string) {
+    const res = await fetch(
+        `/api/competitions?page=${pageParam}&limit=${limitParam}`,
+        {
+            cache: 'no-store',
+        }
+    )
 
     const competitions = await res.json()
     return competitions
@@ -29,28 +32,23 @@ export default function Page() {
         },
     })
 
-    const { isLoading } = useQuery('competitions', getCompetitions, {
-        onSuccess: (data) => {
-            setCompetitions(data)
-            const userComps = data.userCompetitions.map(
-                (competition: any) => competition.competitionId
-            )
-            setUserJoinedCompetitions(userComps)
-        },
-    })
+    const searchParams = useSearchParams()
+    const pageParam = searchParams.get('page') || '1'
+    const limitParam = searchParams.get('limit') || '9'
 
-    // const removeCompetition = (competitionId: string) => {
-    //     setCompetitions((prevState) => ({
-    //         ...prevState,
-    //         competitions: prevState.competitions.filter(
-    //             (comp) => comp.competitionId !== competitionId
-    //         ),
-    //         pagination: {
-    //             ...prevState.pagination,
-    //             totalRecords: prevState.pagination.totalRecords - 1,
-    //         },
-    //     }))
-    // }
+    const { isLoading } = useQuery(
+        'competitions',
+        () => getCompetitions(pageParam, limitParam),
+        {
+            onSuccess: (data) => {
+                setCompetitions(data)
+                const userComps = data.userCompetitions.map(
+                    (competition: any) => competition.competitionId
+                )
+                setUserJoinedCompetitions(userComps)
+            },
+        }
+    )
 
     const onCompetitionCreated = (newCompetition: CompetitionProps['data']) => {
         setCompetitions((prevState) => {
@@ -86,6 +84,7 @@ export default function Page() {
 
             <div className="top-0 flex w-full justify-center">
                 <CompetitionList
+                    limit={limitParam}
                     competitions={competitions.competitions}
                     userCompetitions={userJoinedCompetitions}
                 />

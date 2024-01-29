@@ -26,6 +26,8 @@ export async function POST(req: Request) {
 
     const competitionId = uuidv4()
     const userUuid = userRes[0].userId
+    // create timestamp with tz
+    const dateCreated = new Date().toISOString()
 
     let comp = await db
         .insert(competition)
@@ -36,6 +38,7 @@ export async function POST(req: Request) {
             numTeams: payload.numTeams,
             creatorId: userUuid,
             numSubs: payload.numSubs,
+            dateCreated: dateCreated,
         })
         .returning()
         .execute()
